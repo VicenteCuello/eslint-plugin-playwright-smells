@@ -68,6 +68,11 @@ These smells affect small code structures, such as the abuse of specific methods
     expect(await page.getByTestId('table').isVisible()).toBe(true); // Code smell 
     expect(page.url()).toEqual('https://app.com/dashboard'); // Code smell
     ```
+    > **Another example:** Manual synchronous extraction.
+    ```javascript
+    const afterPressed = await mute.getAttribute('aria-pressed'); 
+    expect(afterPressed).toBe('true');
+    ```
 * **Solution:** Use web-first assertions (`toHaveURL`, `toBeVisible`), which apply adaptive waiting.
     ```javascript
     await expect(page.getByTestId('table')).toBeVisible();
