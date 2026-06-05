@@ -1,0 +1,45 @@
+{
+  "name": "eslint-plugin-playwright-smells",
+  "version": "0.0.0",
+  "description": "Plugin para la detección de code smells en pruebas automatizadas con Playwright",
+  "keywords": [
+    "eslint",
+    "eslintplugin",
+    "eslint-plugin"
+  ],
+  "author": "Vimo",
+  "main": "./lib/index.js",
+  "exports": "./lib/index.js",
+  "files": [
+    "lib"
+  ],
+  "scripts": {
+    "lint": "npm-run-all \"lint:*\"",
+    "lint:eslint-docs": "npm-run-all \"update:eslint-docs -- --check\"",
+    "lint:js": "eslint .",
+    "test": "mocha tests --recursive",
+    "update:eslint-docs": "eslint-doc-generator"
+  },
+  "dependencies": {
+    "requireindex": "^1.2.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.0.0",
+    "@playwright/test": "^1.60.0",
+    "@typescript-eslint/parser": "^8.59.3",
+    "@typescript-eslint/utils": "^8.59.3",
+    "eslint": "^9.0.0",
+    "eslint-doc-generator": "^2.0.0",
+    "eslint-plugin-eslint-plugin": "^7.3.2",
+    "eslint-plugin-n": "^17.0.0",
+    "mocha": "^11.0.0",
+    "npm-run-all2": "^6.1.2"
+  },
+  "engines": {
+    "node": "^20.19.0 || ^22.13.0 || >=24"
+  },
+  "peerDependencies": {
+    "eslint": ">=9.15.0"
+  },
+  "license": "MIT"
+}
