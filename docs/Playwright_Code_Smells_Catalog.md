@@ -150,21 +150,15 @@ These smells affect small code structures, such as the abuse of specific methods
 * **Problem:** Attempting to interact with elements or make assertions without first verifying if transient loading states (spinners, skeletons, or screen-blocking toasts) exist. Playwright might attempt an interaction while an overlapping element is disappearing, causing intermittent test failures. There are also race conditions with visual transitions (CSS); during native interactions (like Drag and Drop), Playwright's mouse events are faster than CSS transitions. Playwright evaluates static coordinates on a DOM that is still visually shifting, dropping the element in the wrong place.
 * **Example:** Assuming the UI reacts instantly without waiting for the loading indicator to disappear.
     ```javascript
-    await page.getByRole('button', { name: 'Guardar' }).click();
+    await page.getByRole('button', { name: 'Save' }).click();
     // Code smell: The test assumes the loading was instantaneous
-    await expect(page.getByText('Éxito')).toBeVisible();
+    await expect(page.getByText('Success')).toBeVisible();
     ```
 * **Solution:** Assert that blocking elements are hidden before continuing with the next interaction or assertion.
     ```javascript
-    await page.getByRole('button', { name: 'Guardar' }).click();
+    await page.getByRole('button', { name: 'Save' }).click();
     await expect(page.getByTestId('loading-spinner')).toBeHidden();
-    await expect(page.getByText('Éxito')).toBeVisible();
-    ```
-    > **For race conditions with visual transitions:** Split the movement and justify a wait for the CSS animation:
-    ```javascript
-    await page.mouse.move(x, y);
-    await page.waitForTimeout(300); // Justified exception for native CSS animations
-    await page.mouse.move(finalX, finalY);
+    await expect(page.getByText('Success')).toBeVisible();
     ```
 
 ---
