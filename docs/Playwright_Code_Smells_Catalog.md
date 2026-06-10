@@ -233,19 +233,22 @@ These smells affect small code structures, such as the abuse of specific methods
 
 ---
 
-### Stale Element Reference
-* **Problem:** Saving the reference of a locator that interacts with an element (e.g., in React) that is rebuilt or detached from the DOM during hydration or re-rendering. When attempting to click, the saved element is no longer valid.
-* **Example:** Saving and verifying the reference before the click.
+### Conditional UI Testing
+* **Problem:** Modern E2E (End-to-End) tests must be strictly deterministic. Introducing logical branching (if/else, ternary operators, or silent catch blocks) based on asynchronous visual states (such as .isVisible() or .isEnabled()) reveals a lack of control over the test environment. If the code needs to "ask" the interface if an element exists to decide which execution path to take, it indicates that the initial state of the application or the data is uncertain. This breaks idempotency and generates highly fragile (flaky) tests.
+* **Example:**
     ```javascript
+    // Code smell: The test flow depends on an intermittent and non-deterministic visual state
     const graphLink = page.locator('aside a').first();
     if (await graphLink.isVisible().catch(() => false)) {
         await graphLink.click();
     }
     ```
-* **Solution:** Inject the selector string directly into the action method so that Playwright searches for the freshest node at that exact moment.
+* **Solution:** Eliminate the conditional logic by directly asserting the expected state using web-first assertions. The test environment (database, session, fixtures, or mocks) must be prepared beforehand to guarantee that the element is always present (or always absent), thus ensuring a single linear execution path.
     ```javascript
-    const graphSel = 'aside a';
-    await page.click(graphSel);
+    // Solution: Prepared (deterministic) environment with a linear flow and explicit assertion
+    const graphLink = page.locator('aside a').first();
+    await expect(graphLink).toBeVisible();
+    await graphLink.click();
     ```
 
 ---
