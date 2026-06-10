@@ -186,12 +186,12 @@ These smells affect small code structures, such as the abuse of specific methods
     ```javascript
     await page.getByRole("button", { name: "Send" }).click();
     // Code smell: .count() resolves immediately to 0 if the message hasn't rendered yet
-    const messages = await page.getByText("Mensaje enviado").count();
+    const messages = await page.getByText("Message sent").count();
     expect(messages).toBe(1);
     ```
 * **Solution:** Force synchronization by adding a `toBeVisible()` assertion before counting, or use `toHaveCount()` which does incorporate native auto-waiting.
     ```javascript
-    await expect(page.getByText("Mensaje enviado")).toHaveCount(1);
+    await expect(page.getByText("Message sent")).toHaveCount(1);
     ```
 
 ---
