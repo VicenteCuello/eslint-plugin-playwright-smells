@@ -147,35 +147,41 @@ These smells affect small code structures, such as the abuse of specific methods
 ---
 
 ### Missing UI Synchronization
-* **Problem:** Attempting to interact with elements or make assertions without first verifying if transient loading states (spinners, skeletons, or screen-blocking toasts) exist. Playwright might attempt an interaction while an overlapping element is disappearing, causing intermittent test failures. There are also race conditions with visual transitions (CSS); during native interactions (like Drag and Drop), Playwright's mouse events are faster than CSS transitions. Playwright evaluates static coordinates on a DOM that is still visually shifting, dropping the element in the wrong place.
-* **Example:** Assuming the UI reacts instantly without waiting for the loading indicator to disappear.
+* **Problem:** Generating race conditions with visual transitions (CSS) when using low-level interactions. When performing native mouse interactions (page.mouse.move, page.mouse.down), Playwright's events trigger faster than the UI's CSS animations. Because the manual mouse API bypasses automatic actionability checks, Playwright evaluates static coordinates on a DOM that is still visually shifting, executing clicks or dropping elements in the wrong place.
+* **Example:** Assuming the interface reacts instantly and ignoring the framework's auto-wait when dragging elements.
     ```javascript
-    await page.getByRole('button', { name: 'Save' }).click();
-    // Code smell: The test assumes the loading was instantaneous
-    await expect(page.getByText('Success')).toBeVisible();
+    // Code smell: Race condition when using manual mouse events 
+    // that ignore if the target element is still animating.
+    await page.mouse.move(100, 200); 
+    await page.mouse.down();         
+    await page.mouse.move(500, 200); 
+    await page.mouse.up();
+
     ```
-* **Solution:** Assert that blocking elements are hidden before continuing with the next interaction or assertion.
+* **Solution:** Replace the use of manual mouse events with dynamic Locators and high-level abstraction methods (like .dragTo() or .hover()), which incorporate UI synchronization and automatically wait for CSS animations to finish before interacting.
     ```javascript
-    await page.getByRole('button', { name: 'Save' }).click();
-    await expect(page.getByTestId('loading-spinner')).toBeHidden();
-    await expect(page.getByText('Success')).toBeVisible();
+    // Solution: Use of the high-level API that guarantees actionability
+    await page.locator('#source-item').dragTo(page.locator('#drop-zone'));
     ```
 
 ---
 
-### Unsynchronized Navigation
-* **Problem:** Executing a click event that triggers a navigation but proceeding to the next line of code without using wait blocks (like `waitForNavigation` or `waitForURL`). This results in browser lifecycle errors, as the test attempts to act on a DOM that is being destroyed.
+### Redundant Navigation Wait
+* **Problem:** Using explicit synchronization methods like waitForURL or waitForNavigation immediately after a click event and before an assertion. In Playwright, the .click() action and web-first assertions (like toBeVisible()) already incorporate intelligent auto-waiting and handle the DOM lifecycle safely. Forcing navigation waits is a legacy anti-pattern inherited from first-generation tools (like Puppeteer) that clutters the code and adds unnecessary complexity.
 * **Example:**
     ```javascript
-    await page.click('a[href="/dashboard"]');
-    // Code smell: The test assumes it is immediately on the new page after a click.
+    await page.getByRole('link', { name: 'Dashboard' }).click();
+    // Code smell: Redundant explicit synchronization
+    await page.waitForURL('**/dashboard'); 
     await expect(page.locator('.widget')).toBeVisible();
+
     ```
-* **Solution:** Explicitly validate the URL state change before searching for elements in the new view.
+* **Solution:** Remove the explicit navigation wait and rely on the web-first assertion to synchronize the final state of the UI.
     ```javascript
-    await page.click('a[href="/dashboard"]');
-    await page.waitForURL('**/dashboard');
+    await page.getByRole('link', { name: 'Dashboard' }).click();
+    // Solution: The expect will handle synchronization automatically
     await expect(page.locator('.widget')).toBeVisible();
+
     ```
 
 ---
