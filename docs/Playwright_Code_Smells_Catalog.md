@@ -277,19 +277,20 @@ These smells affect small code structures, such as the abuse of specific methods
 
 ---
 
-### Missing Viewport Assertion
-* **Problem:** Forcing the screen to scroll to an element (`scrollIntoViewIfNeeded`) and executing an immediate action (`click`) without waiting for the browser to finish painting the scroll. This causes off-screen clicks.
+### Redundant Manual Scroll
+* **Problem:** Forcing the screen to scroll to an element using scrollIntoViewIfNeeded() immediately before executing a native action on the same element (such as .click(), .fill(), or .hover()). Playwright's action methods incorporate automatic actionability checks, which scroll the element into the viewport natively and safely. Doing it manually is redundant and adds noise to the code.
 * **Example:**
     ```javascript
-    await footnoteRef.scrollIntoViewIfNeeded();
-    // Smell: Click executed before confirming the scroll finished
+    // Code smell: Forcing a manual scroll before an auto-scrolling action
+    await footnoteRef.scrollIntoViewIfNeeded(); 
     await footnoteRef.click();
+
     ```
-* **Solution:** Add a strict viewport assertion (`toBeInViewport`) between the scroll event and the click.
+* **Solution:** Remove the manual scroll and rely on the default behavior of the Playwright API.
     ```javascript
-    await footnoteRef.scrollIntoViewIfNeeded();
-    await expect(footnoteRef).toBeInViewport();
+    // Solution: The click will handle the scrolling automatically
     await footnoteRef.click();
+
     ```
 
 ---

@@ -1,7 +1,7 @@
 "use strict";
 
 const { RuleTester } = require("eslint");
-const rule = require("../../../lib/rules/no-missing-viewport-assertion");
+const rule = require("../../../lib/rules/no-redundant-scroll");
 const tsParser = require("@typescript-eslint/parser");
 
 const ruleTester = new RuleTester({
@@ -12,15 +12,22 @@ const ruleTester = new RuleTester({
   },
 });
 
-ruleTester.run("no-missing-viewport-assertion", rule, {
+ruleTester.run("no-redundant-scroll", rule, {
   valid: [
     {
-      name: "Solution: Strict viewport assertion after scroll",
+      name: "Solution: Direct action relying on Playwright's auto-scroll",
       code: `
         async function test() {
-          await footnoteRef.scrollIntoViewIfNeeded();
-          await expect(footnoteRef).toBeInViewport();
           await footnoteRef.click();
+        }
+      `,
+    },
+    {
+      name: "Valid use: Manual scroll without subsequent action (e.g., triggering lazy loading)",
+      code: `
+        async function test() {
+          await footer.scrollIntoViewIfNeeded();
+          await expect(footer).toBeVisible();
         }
       `,
     }
@@ -28,7 +35,7 @@ ruleTester.run("no-missing-viewport-assertion", rule, {
 
   invalid: [
     {
-      name: "Code smell: Click executed before confirming the scroll finished",
+      name: "Code smell: Scroll followed by click on the same element",
       code: `
         async function test() {
           await footnoteRef.scrollIntoViewIfNeeded();
@@ -37,14 +44,13 @@ ruleTester.run("no-missing-viewport-assertion", rule, {
       `,
       errors: [
         { 
-          messageId: "missingViewport",
+          messageId: "redundantScroll",
           suggestions: [
             {
-              messageId: "addViewportAssertion",
+              messageId: "removeScroll",
               output: `
         async function test() {
-          await footnoteRef.scrollIntoViewIfNeeded();
-          await expect(footnoteRef).toBeInViewport();
+          
           await footnoteRef.click();
         }
       `
@@ -54,24 +60,25 @@ ruleTester.run("no-missing-viewport-assertion", rule, {
       ]
     },
     {
-      name: "Code smell: Scroll at the end of a block without assertion",
+      name: "Code smell: Scroll followed by fill on the same element",
       code: `
         async function test() {
-          const button = page.locator('#submit');
-          await button.scrollIntoViewIfNeeded();
+          const input = page.locator('#email');
+          await input.scrollIntoViewIfNeeded();
+          await input.fill('test@test.com');
         }
       `,
       errors: [
         { 
-          messageId: "missingViewport",
+          messageId: "redundantScroll",
           suggestions: [
             {
-              messageId: "addViewportAssertion",
+              messageId: "removeScroll",
               output: `
         async function test() {
-          const button = page.locator('#submit');
-          await button.scrollIntoViewIfNeeded();
-          await expect(button).toBeInViewport();
+          const input = page.locator('#email');
+          
+          await input.fill('test@test.com');
         }
       `
             }
