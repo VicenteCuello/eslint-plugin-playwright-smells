@@ -389,24 +389,27 @@ These smells impact test architecture and organization, representing deep synchr
 
 ---
 
-### Synchronous Event Race Condition
-* **Problem:** Executing an action and belatedly registering a listener for an HTTP response. In fast architectures, the request happens before `waitForResponse` is registered, causing the test to wait forever. Using `Promise.all` can also trigger these desynchronizations if not handled properly. There's also the anti-pattern of using `Promise.all` to combine a click with `waitForResponse`. In fast architectures, the click occurs before Playwright registers the network "listener", leaving the test hanging.
-* **Example:** Declaring the wait after the action that triggers it.
+### Sequential Event Race Condition
+* **Problem:** Executing an action on the DOM with await and, on the very next line, registering an event listener (such as waitForResponse, waitForRequest, or waitForEvent). In fast applications, the network event can trigger and resolve during the execution of the click, before Playwright reaches the listener line. This causes the test to hang waiting for an event that has already occurred (Race Condition).
+* **Example:** 
     ```javascript
+    // Code smell: The network event might occur before the listener is registered.
     await page.getByRole('button', { name: 'Load' }).click();
-    await page.waitForResponse('/api/data'); // Code smell
-    
-    // Code smell: Encapsulating the race condition within a Promise.all
-    await Promise.all([
-        page.waitForResponse((res) => res.request().method() == 'PATCH'),
-        page.click('data-testid=SubmitCancelButtons-submitButton'),
-    ]);
+    await page.waitForResponse('**/api/data');
+
     ```
-* **Solution:** Define the response promise before initiating the DOM interaction, and resolve it afterward.
+* **Solution:** Start the listener promise before the action that triggers it. This can be achieved by storing the promise in a variable without using await, or by executing both actions concurrently using Promise.all().
     ```javascript
-    const responsePromise = page.waitForResponse('/api/data');
+    // Solution 1: Concurrency with Promise.all
+    await Promise.all([
+        page.waitForResponse('**/api/data'),
+        page.getByRole('button', { name: 'Load' }).click()
+    ]);
+    // Solution 2: Variable assignment (Pending Promise Pattern)
+    const responsePromise = page.waitForResponse('**/api/data');
     await page.getByRole('button', { name: 'Load' }).click();
     await responsePromise;
+
     ```
 
 ---
