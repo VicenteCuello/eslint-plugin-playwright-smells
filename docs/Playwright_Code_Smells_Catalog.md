@@ -494,16 +494,6 @@ These smells impact test architecture and organization, representing deep synchr
 
 ---
 
-### Duplicated Locators (Missing POM)
-* **Problem:** Abusing selectors tightly coupled to texts or regular expressions and repeating them throughout the suite. If the UI changes, multiple files will fail simultaneously, violating the DRY (Don't Repeat Yourself) principle.
-* **Example:** Magic strings repeated in tests.
-    ```javascript
-    await page.getByRole("button", { name: /deal cards/i }).click();
-    ```
-* **Solution:** Implement the Page Object Model (POM) pattern, encapsulating DOM selection within abstract class methods.
-
----
-
 ### Broad Test Skipping
 * **Problem:** When facing an intermittent failure (flakiness) in a specific browser, unconditionally deactivating the test using `test.skip()` without conditionals unnecessarily sacrifices test coverage for other stable browsers.
 * **Example:** Skipping a test unconditionally.
