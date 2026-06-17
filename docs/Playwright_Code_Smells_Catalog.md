@@ -491,6 +491,13 @@ These smells impact test architecture and organization, representing deep synchr
     await page.waitForURL('**/dashboard', { timeout: 15000 });
     ```
 * **Solution:** Remove local overrides and centralize time management by increasing the default expect timeout in the global `playwright.config.ts` file. Replace the forced static limit with the native `test.slow()` directive, which semantically indicates that the test is slow and triples the globally configured timeout without hardcoding numbers.
+    ```javascript
+    // Solution 1: Rely on the global timeout from playwright.config.ts
+    await expect(page.getByRole('heading')).toBeVisible();
+
+    // Solution 2: Semantic declaration
+    test.slow();
+    ```
 
 ---
 
@@ -510,23 +517,41 @@ These smells impact test architecture and organization, representing deep synchr
 ### Network and Console Blindness
 * **Problem:** Running E2E tests that only check the visibility of on-screen elements, completely ignoring if background resources (CSS, JS, WASM) failed with 4xx/5xx network errors or if the DOM throws critical errors in the browser console. This hides partially broken applications.
 * **Example:** UI assertions passing successfully even though severe errors like `NotFoundError` are hidden in the console.
-* **Solution:** Implement a global listener in the configuration or hooks to catch console or network errors and force an immediate test failure (fail fast).
     ```javascript
-    page.on('console', msg => {
-        if (msg.type() === 'error' && /NotFoundError/i.test(msg.text())) {
-            throw new Error(`Console Error: ${msg.text()}`);
-        }
+    // Code smell: The test passes, but silently ignores if the 
+    // backend returned an HTTP 500 or if the console is full of errors.
+    test('Loading flow', async ({ page }) => {
+        await page.goto('/dashboard');
+        await expect(page.locator('.widget')).toBeVisible();
+    });
+    ```
+* **Solution:** Implement global listeners (page.on('console'), page.on('pageerror'), or page.on('requestfailed')) in the configuration hooks to catch errors and force an immediate test failure (Fail Fast), or delegate this responsibility to a custom Fixture.
+    ```javascript
+    // Solution: The listener catches the background error and breaks the test 
+    // before the expect can incorrectly validate.
+    test.beforeEach(async ({ page }) => {
+        page.on('pageerror', exception => {
+            throw new Error(`Uncaught exception: ${exception.message}`);
+        });
     });
     ```
 
 ---
 
 ### Resource Leakage
-* **Problem:** Upon finishing a test, superficially closing the tab (`newPage.close()`) but failing to destroy the entire application context (e.g., in an Electron app). This saturates memory during long CI runs, causing subsequent tests to fail due to a lack of resources.
+* **Problem:** Superficially closing a secondary tab or window (newPage.close(), page.close()) in teardown blocks (afterEach, afterAll) at the end of a test, but omitting the destruction of the main context or the entire application (e.g., an Electron app, or a manually instantiated browser context). This generates orphaned instances that saturate RAM during long CI runs, causing subsequent tests to fail in a cascade due to a lack of resources (OOM - Out of Memory).
 * **Example:**
     ```javascript
     test.afterEach(async () => {
         await newPage.close(); // Code smell: The base process remains alive consuming RAM
     });
     ```
-* **Solution:** Replace superficial closures with helpers or native methods that fully terminate the parent application process in the `afterAll` or `afterEach` blocks.
+* **Solution:** Replace superficial closures with native methods that completely terminate the parent process (app.close(), browser.close()) or delegate resource management to native Playwright Fixtures, which automatically manage the lifecycle and context destruction.
+    ```javascript
+    // Solution: Close the root instance of the application or context
+    test.afterEach(async () => { 
+        if (electronApp) {
+            await electronApp.close();
+        }
+    });
+    ```
