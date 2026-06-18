@@ -46,16 +46,12 @@ ruleTester.run("prefer-web-first-assertions", rule, {
           expect(await page.getByTestId('table').isVisible()).toBe(true);
         }
       `,
-      errors: [
-        { 
-          messageId: "eagerAssertion",
-          suggestions: [{ messageId: "replaceWithToBeVisible", output: `
+      output: `
         async function test() {
           await expect(page.getByTestId('table')).toBeVisible();
         }
-      `}]
-        }
-      ]
+      `,
+      errors: [{ messageId: "eagerAssertion" }]
     },
     {
       name: "Code smell 2: Strict URL assertion",
@@ -64,16 +60,12 @@ ruleTester.run("prefer-web-first-assertions", rule, {
           expect(page.url()).toEqual('https://app.com/dashboard');
         }
       `,
-      errors: [
-        { 
-          messageId: "eagerAssertion",
-          suggestions: [{ messageId: "replaceWithToHaveURL", output: `
+      output: `
         async function test() {
           await expect(page).toHaveURL('https://app.com/dashboard');
         }
-      `}]
-        }
-      ]
+      `,
+      errors: [{ messageId: "eagerAssertion" }]
     },
     {
       name: "Code smell 3: Manual synchronous attribute extraction",
@@ -83,17 +75,13 @@ ruleTester.run("prefer-web-first-assertions", rule, {
           expect(afterPressed).toBe('true');
         }
       `,
-      errors: [
-        { 
-          messageId: "eagerAssertion",
-          suggestions: [{ messageId: "replaceWithToHaveAttribute", output: `
+      output: `
         async function test() {
           const afterPressed = await mute.getAttribute('aria-pressed');
           await expect(mute).toHaveAttribute('aria-pressed', 'true');
         }
-      `}]
-        }
-      ]
+      `,
+      errors: [{ messageId: "eagerAssertion" }]
     }
   ]
 });
