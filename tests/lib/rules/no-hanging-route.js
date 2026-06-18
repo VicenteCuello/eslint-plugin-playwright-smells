@@ -57,13 +57,7 @@ ruleTester.run("no-hanging-route", rule, {
           });
         }
       `,
-      errors: [
-        { 
-          messageId: "hangingRoute",
-          suggestions: [
-            {
-              messageId: "addContinue",
-              output: `
+      output: `
         async function test() {
           await page.route('**/api/messages', async route => {
             if (condition) {
@@ -73,11 +67,8 @@ ruleTester.run("no-hanging-route", rule, {
   await route.continue();
           });
         }
-      `
-            }
-          ]
-        }
-      ]
+      `,
+      errors: [{ messageId: "hangingRoute" }]
     }
   ]
 });

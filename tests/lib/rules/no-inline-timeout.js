@@ -41,21 +41,12 @@ ruleTester.run("no-inline-timeout", rule, {
           await expect(locator).toBeVisible({ timeout: 15000 });
         }
       `,
-      errors: [
-        { 
-          messageId: "inlineTimeout",
-          suggestions: [
-            {
-              messageId: "removeTimeoutProp",
-              output: `
+      output: `
         async function test() {
           await expect(locator).toBeVisible({  });
         }
-      `
-            }
-          ]
-        }
-      ]
+      `,
+      errors: [{ messageId: "inlineTimeout" }]
     },
     {
       name: "Code smell: Test Timeout Inflation at the test level",
@@ -64,21 +55,12 @@ ruleTester.run("no-inline-timeout", rule, {
           test.setTimeout(90000);
         });
       `,
-      errors: [
-        { 
-          messageId: "testSetTimeout",
-          suggestions: [
-            {
-              messageId: "replaceWithSlow",
-              output: `
+      output: `
         test('Flaky test', async ({ page }) => {
           test.slow();
         });
-      `
-            }
-          ]
-        }
-      ]
+      `,
+      errors: [{ messageId: "testSetTimeout" }]
     }
   ]
 });
