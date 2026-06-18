@@ -34,23 +34,13 @@ ruleTester.run("no-element-handle", rule, {
           await saveButton.click();
         }
       `,
-      errors: [
-        { 
-          messageId: "legacyHandle",
-          suggestions: [
-            {
-              messageId: "replaceWithLocator",
-              // The test will validate that the "await" disappears from the variable assignment
-              output: `
+      output: `
         async function test() {
           const saveButton = page.locator('#save');
           await saveButton.click();
         }
-      `
-            }
-          ]
-        }
-      ]
+      `,
+      errors: [{ messageId: "legacyHandle" }]
     },
     {
       name: "Code smell: Use of multiple elements with $$",
@@ -59,22 +49,12 @@ ruleTester.run("no-element-handle", rule, {
           const rows = await page.$$('.fila');
         }
       `,
-      errors: [
-        { 
-          messageId: "legacyHandle",
-          suggestions: [
-            {
-              messageId: "replaceWithLocator",
-              // It also fixes multiple searches (the user can later add .all() if iterating)
-              output: `
+      output: `
         async function test() {
           const rows = page.locator('.fila');
         }
-      `
-            }
-          ]
-        }
-      ]
+      `,
+      errors: [{ messageId: "legacyHandle" }]
     }
   ]
 });
