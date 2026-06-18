@@ -470,7 +470,7 @@ These smells impact test architecture and organization, representing deep synchr
     ```javascript
     test.describe.serial('checkout flow', () => {
         test('step 1: add item to cart', async ({ page }) => { ... });
-        test('step 2: go to checkout', async ({ page }) => { /* Falla si falla el paso 1 */ });
+        test('step 2: go to checkout', async ({ page }) => { /* Fail if step 1 fails */ });
     });
     ```
 * **Solution:** If there's a long critical flow that must be evaluated in sequence within the same state, use logical steps (`test.step`) within a single test, or configure isolated preconditions.
