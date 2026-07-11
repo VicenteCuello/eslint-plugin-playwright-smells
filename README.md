@@ -16,17 +16,17 @@ Before installing this plugin, ensure you have the following installed in your e
 ## Installation
 
 First, install ESLint if you haven't already:
-
+```sh
 npm install eslint --save-dev
-
+```
 Next, install `eslint-plugin-playwright-smells`:
-
+```sh
 npm install eslint-plugin-playwright-smells --save-dev
-
+```
 If your Playwright tests are written in TypeScript, you will also need the TypeScript parser to allow ESLint to read `.ts` files correctly. (If your project uses pure JavaScript, you can skip this step):
-
+```sh
 npm install @typescript-eslint/parser --save-dev
-
+```
   
 
 ## Usage (Flat Config)
@@ -65,21 +65,21 @@ Once configured, you can run ESLint via your terminal to audit your test files.
 To scan your repository and see the report, use the extension that matches your language (`.spec.js` or `.spec.ts`):
 
 -   For TypeScript
-
+```sh
 npx eslint "tests/\*\*/\*.spec.ts"
-
+```
 -   For JavaScript
-
+```sh
 npx eslint "tests/\*\*/\*.spec.js"
-
+```
   
 
 ## Auto-fixing and Suggestions
 
 This plugin supports ESLint's `--fix` flag. Many safe code smells (like missing `await` keywords) can be automatically resolved by running:
-
+```sh
 npx eslint "tests/\*\*/\*.spec.ts" --fix
-
+```
 For more complex code smells where the developer's intent is ambiguous (e.g., fragile locators or static timeouts), the plugin provides Suggestions (Quick Fixes). These will not be applied automatically to prevent breaking your tests. Instead, you can trigger them manually via the "lightbulb" icon in your IDE (like VS Code) or via your editor's Code Actions menu.
 
   
