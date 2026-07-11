@@ -10,24 +10,40 @@ Before installing this plugin, ensure you have the following installed in your e
 
 -   Node.js (v18 or higher recommended)
 -   ESLint (v8.56.0 or higher, with Flat Config support)
+-   Git (to clone the repository)
 
-  
 
-## Installation
+## Local Installation (via Git and npm link)
 
+Since this plugin is meant to be used locally, you need to clone the repository and link it to your target project using `npm link`.
+****1\. Clone the plugin repository:****
+```sh
+git clone https://github.com/VicenteCuello/eslint-plugin-playwright-smells.git
+cd eslint-plugin-playwright-smells
+```
+****2\. Install plugin dependencies and create a global link:****
+```sh
+npm install
+npm link
+```
+****3\. Navigate to your Playwright project:****
+```sh
+cd /path/to/your/playwright-project
+```
+****4\. Install ESLint and TypeScript requirements in your project:****
 First, install ESLint if you haven't already:
 ```sh
 npm install eslint --save-dev
 ```
-Next, install `eslint-plugin-playwright-smells`:
-```sh
-npm install eslint-plugin-playwright-smells --save-dev
-```
-If your Playwright tests are written in TypeScript, you will also need the TypeScript parser to allow ESLint to read `.ts` files correctly. (If your project uses pure JavaScript, you can skip this step):
+If your Playwright tests are written in TypeScript, you will also need the TypeScript parser to allow ESLint to read `.ts` files correctly. (If your project uses pure JavaScript, you can skip this step):  
 ```sh
 npm install @typescript-eslint/parser --save-dev
 ```
-  
+****5\. Link the local plugin to your project:****
+```sh
+npm link eslint-plugin-playwright-smells
+```
+
 
 ## Usage (Flat Config)
 
