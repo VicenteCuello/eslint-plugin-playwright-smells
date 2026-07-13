@@ -34,24 +34,14 @@ ruleTester.run("no-premature-counting", rule, {
           expect(messages).toBe(1);
         }
       `,
-      errors: [
-        { 
-          messageId: "prematureCounting",
-          suggestions: [
-            {
-              messageId: "replaceWithToHaveCount",
-              // The assertion is transformed, and the unused variable will be caught by the standard linter
-              output: `
+      output: `
         async function test() {
           await page.getByRole("button", { name: "Send" }).click(); 
           const messages = await page.getByText("Message sent").count();
           await expect(page.getByText("Message sent")).toHaveCount(1);
         }
-      `
-            }
-          ]
-        }
-      ]
+      `,
+      errors: [{ messageId: "prematureCounting" }]
     },
     {
       name: "Code smell: Synchronous count injected directly into the expect",
@@ -60,21 +50,12 @@ ruleTester.run("no-premature-counting", rule, {
           expect(await page.locator('.items').count()).toEqual(3);
         }
       `,
-      errors: [
-        { 
-          messageId: "prematureCounting",
-          suggestions: [
-            {
-              messageId: "replaceWithToHaveCount",
-              output: `
+      output: `
         async function test() {
           await expect(page.locator('.items')).toHaveCount(3);
         }
-      `
-            }
-          ]
-        }
-      ]
+      `,
+      errors: [{ messageId: "prematureCounting" }]
     }
   ]
 });

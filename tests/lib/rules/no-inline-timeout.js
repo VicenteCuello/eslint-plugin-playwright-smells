@@ -46,7 +46,7 @@ ruleTester.run("no-inline-timeout", rule, {
           messageId: "inlineTimeout",
           suggestions: [
             {
-              messageId: "removeTimeoutProp",
+              messageId: "removeTimeout",
               output: `
         async function test() {
           await expect(locator).toBeVisible({  });

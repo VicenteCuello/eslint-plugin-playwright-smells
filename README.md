@@ -1,71 +1,112 @@
 # eslint-plugin-playwright-smells
 
-Plugin para la detección de code smells en pruebas automatizadas con Playwright
+An ESLint plugin dedicated to detecting code smells and anti-patterns in automated End-to-End tests using Playwright. It works seamlessly with tests written in both JavaScript and TypeScript.
 
-## Installation
+  
 
-You'll first need to install [ESLint](https://eslint.org/):
+## Prerequisites
 
+Before installing this plugin, ensure you have the following installed in your environment:
+
+-   Node.js (v18 or higher recommended)
+-   ESLint (v8.56.0 or higher, with Flat Config support)
+-   Git (to clone the repository)
+
+
+## Local Installation (via Git and npm link)
+
+Since this plugin is meant to be used locally, you need to clone the repository and link it to your target project using `npm link`.
+****1\. Clone the plugin repository:****
 ```sh
-npm i eslint --save-dev
+git clone https://github.com/VicenteCuello/eslint-plugin-playwright-smells.git
+cd eslint-plugin-playwright-smells
 ```
-
-Next, install `eslint-plugin-playwright-smells`:
-
+****2\. Install plugin dependencies and create a global link:****
 ```sh
-npm install eslint-plugin-playwright-smells --save-dev
+npm install
+npm link
+```
+****3\. Navigate to your Playwright project:****
+```sh
+cd /path/to/your/playwright-project
+```
+****4\. Install ESLint and TypeScript requirements in your project:****
+First, install ESLint if you haven't already:
+```sh
+npm install eslint --save-dev
+```
+If your Playwright tests are written in TypeScript, you will also need the TypeScript parser to allow ESLint to read `.ts` files correctly. (If your project uses pure JavaScript, you can skip this step):  
+```sh
+npm install @typescript-eslint/parser --save-dev
+```
+****5\. Link the local plugin to your project:****
+```sh
+npm link eslint-plugin-playwright-smells
 ```
 
-## Usage
 
-In your [configuration file](https://eslint.org/docs/latest/use/configure/configuration-files#configuration-file), import the plugin `eslint-plugin-playwright-smells` and add `playwright-smells` to the `plugins` key:
+## Usage (Flat Config)
 
-```js
-import { defineConfig } from "eslint/config";
-import playwright-smells from "eslint-plugin-playwright-smells";
+This plugin is designed to work seamlessly with ESLint's modern Flat Config system.
 
-export default defineConfig([
-    {
-        plugins: {
-            playwright-smells
-        }
+In your configuration file (typically `eslint.config.js` or `eslint.config.mjs`), import the plugin. We recommend using the `flat/recommended` configuration, which automatically enables the best practices and rules.
+
+```ts
+import playwrightSmells from "eslint-plugin-playwright-smells";
+// Only import the parser if you are using TypeScript
+import tsParser from "@typescript-eslint/parser"; 
+
+export default [
+  // 1. Inject the recommended Plug & Play configuration
+  playwrightSmells.configs["flat/recommended"],
+  
+  // 2. Add the global configuration for the TypeScript parser (Optional for JS-only projects)
+  {
+    // Explicitly allow ESLint to scan both TypeScript and JavaScript files
+    files: ["**/*.{ts,tsx,js,jsx}"],
+    languageOptions: {
+      parser: tsParser, // Remove this line if using pure JavaScript
+      ecmaVersion: "latest",
+      sourceType: "module"
     }
-]);
+  }
+];
 ```
 
 
-Then configure the rules you want to use under the `rules` key.
+## Running the Linter
 
-```js
-import { defineConfig } from "eslint/config";
-import playwright-smells from "eslint-plugin-playwright-smells";
+Once configured, you can run ESLint via your terminal to audit your test files.
 
-export default defineConfig([
-    {
-        plugins: {
-            playwright-smells
-        },
-        rules: {
-            "playwright-smells/rule-name": "warn"
-        }
-    }
-]);
+To scan your repository and see the report, use the extension that matches your language (`.spec.js` or `.spec.ts`):
+
+-   For TypeScript
+```sh
+npx eslint "tests/\*\*/\*.spec.ts"
 ```
+-   For JavaScript
+```sh
+npx eslint "tests/\*\*/\*.spec.js"
+```
+  
 
+## Auto-fixing and Suggestions
 
+This plugin supports ESLint's `--fix` flag. Many safe code smells (like missing `await` keywords) can be automatically resolved by running:
+```sh
+npx eslint "tests/\*\*/\*.spec.ts" --fix
+```
+For more complex code smells where the developer's intent is ambiguous (e.g., fragile locators or static timeouts), the plugin provides Suggestions (Quick Fixes). These will not be applied automatically to prevent breaking your tests. Instead, you can trigger them manually via the "lightbulb" icon in your IDE (like VS Code) or via your editor's Code Actions menu.
+
+  
 
 ## Configurations
 
-<!-- begin auto-generated configs list -->
 TODO: Run eslint-doc-generator to generate the configs list (or delete this section if no configs are offered).
-<!-- end auto-generated configs list -->
 
-
+  
 
 ## Rules
 
-<!-- begin auto-generated rules list -->
 TODO: Run eslint-doc-generator to generate the rules list.
-<!-- end auto-generated rules list -->
-
 

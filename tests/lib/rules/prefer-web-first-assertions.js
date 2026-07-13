@@ -49,11 +49,16 @@ ruleTester.run("prefer-web-first-assertions", rule, {
       errors: [
         { 
           messageId: "eagerAssertion",
-          suggestions: [{ messageId: "replaceWithToBeVisible", output: `
+          suggestions: [
+            {
+              messageId: "replaceWithWebFirst",
+              output: `
         async function test() {
           await expect(page.getByTestId('table')).toBeVisible();
         }
-      `}]
+      `
+            }
+          ]
         }
       ]
     },
@@ -67,11 +72,16 @@ ruleTester.run("prefer-web-first-assertions", rule, {
       errors: [
         { 
           messageId: "eagerAssertion",
-          suggestions: [{ messageId: "replaceWithToHaveURL", output: `
+          suggestions: [
+            {
+              messageId: "replaceWithWebFirst",
+              output: `
         async function test() {
           await expect(page).toHaveURL('https://app.com/dashboard');
         }
-      `}]
+      `
+            }
+          ]
         }
       ]
     },
@@ -86,12 +96,17 @@ ruleTester.run("prefer-web-first-assertions", rule, {
       errors: [
         { 
           messageId: "eagerAssertion",
-          suggestions: [{ messageId: "replaceWithToHaveAttribute", output: `
+          suggestions: [
+            {
+              messageId: "replaceWithWebFirst",
+              output: `
         async function test() {
           const afterPressed = await mute.getAttribute('aria-pressed');
           await expect(mute).toHaveAttribute('aria-pressed', 'true');
         }
-      `}]
+      `
+            }
+          ]
         }
       ]
     }

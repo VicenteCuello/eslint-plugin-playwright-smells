@@ -57,7 +57,7 @@ ruleTester.run("no-context-destruction-race", rule, {
           await gotoPage(page, URL);
           await expect(async () => {
   const color = await page.evaluate(() => document.documentElement.style.color);
-  expect(color).toBe(""); // Replace with your actual assertion
+  // Add your assertion here
 }).toPass({ timeout: 10_000 });
         }
       `
@@ -85,7 +85,7 @@ ruleTester.run("no-context-destruction-race", rule, {
           await page.goto('/home');
           await expect(async () => {
   await page.evaluate(() => window.localStorage.setItem('auth', '123'));
-  expect(color).toBe(""); // Replace with your actual assertion
+  // Add your assertion here
 }).toPass({ timeout: 10_000 });
         }
       `

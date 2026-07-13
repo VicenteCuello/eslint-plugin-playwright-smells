@@ -17,6 +17,8 @@ ruleTester.run("no-global-state-leakage", rule, {
     {
       name: "Valid use: Global declaration, but safe instantiation in beforeEach",
       code: `
+        import { test } from '@playwright/test';
+        
         let adminUser;
         test.beforeEach(async () => {
           adminUser = new UserClass(); 
@@ -29,6 +31,8 @@ ruleTester.run("no-global-state-leakage", rule, {
     {
       name: "Valid use: Completely local state usage",
       code: `
+        import { test, expect } from '@playwright/test';
+        
         test('create user', async () => { 
           let userId = await api.createUser();
           expect(userId).toBeDefined();
@@ -41,6 +45,8 @@ ruleTester.run("no-global-state-leakage", rule, {
     {
       name: "Code smell: Risky static initialization outside of hooks",
       code: `
+        import { test } from '@playwright/test';
+        
         const mockServer = new MockServer();
         test('scenario 1', async () => {
           mockServer.start();
@@ -51,6 +57,8 @@ ruleTester.run("no-global-state-leakage", rule, {
     {
       name: "Code smell: Inter-test state leakage by mutating a global variable",
       code: `
+        import { test } from '@playwright/test';
+        
         let sharedId; 
         
         test('create user', async ({ request }) => { 

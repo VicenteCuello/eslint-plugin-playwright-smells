@@ -42,22 +42,13 @@ ruleTester.run("no-redundant-scroll", rule, {
           await footnoteRef.click();
         }
       `,
-      errors: [
-        { 
-          messageId: "redundantScroll",
-          suggestions: [
-            {
-              messageId: "removeScroll",
-              output: `
+      output: `
         async function test() {
           
           await footnoteRef.click();
         }
-      `
-            }
-          ]
-        }
-      ]
+      `,
+      errors: [{ messageId: "redundantScroll" }]
     },
     {
       name: "Code smell: Scroll followed by fill on the same element",
@@ -68,23 +59,14 @@ ruleTester.run("no-redundant-scroll", rule, {
           await input.fill('test@test.com');
         }
       `,
-      errors: [
-        { 
-          messageId: "redundantScroll",
-          suggestions: [
-            {
-              messageId: "removeScroll",
-              output: `
+      output: `
         async function test() {
           const input = page.locator('#email');
           
           await input.fill('test@test.com');
         }
-      `
-            }
-          ]
-        }
-      ]
+      `,
+      errors: [{ messageId: "redundantScroll" }]
     }
   ]
 });
